@@ -19,7 +19,9 @@ class Controller extends BaseController
 
     public function getProduct()
     {
-        return DB::table('products')->get();
+        return DB::table('products')
+            ->orderBy('products.created_at', 'desc')
+            ->get();
     }
 
     public function createProduct(Request $request)
@@ -74,6 +76,7 @@ class Controller extends BaseController
     public function getOrder(Request $request)
     {
         //
+
         $getOrder = DB::table('orders')->where('link', $request->link)->get()->first();
         if ($getOrder) {
             if ($getOrder->expire_date < now()) {
@@ -145,6 +148,28 @@ class Controller extends BaseController
         return response()->json([
             'status' => 'error',
             'message' => 'Thanh toán không thành công'
+        ]);
+    }
+
+    public function getListOrder()
+    {
+        DB::table('orders')
+            ->where([
+                ['expire_date', '<', now()],
+                ['status', '=', 'pending'],
+            ])
+            ->update(
+                ['status' => 'cancelled']
+            );
+
+        $getOrder = DB::table('orders')
+            ->join('products', 'orders.product_id', '=', 'products.id')
+            ->select('orders.id', 'orders.product_id', 'orders.price', 'orders.quantity', 'orders.total_to_btc', 'orders.expire_date', 'orders.status', 'orders.link', 'orders.created_at', 'orders.updated_at', 'products.product_name')
+            ->orderBy('orders.created_at', 'desc')
+            ->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $getOrder,
         ]);
     }
 }

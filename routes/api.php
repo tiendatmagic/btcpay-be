@@ -23,6 +23,7 @@ Route::group([
     'middleware' => 'api',
 ], function ($router) {
     Route::get('/get-product', [Controller::class, 'getProduct']);
+    Route::get('/get-list-order', [Controller::class, 'getListOrder']);
     Route::post('/create-product', [Controller::class, 'createProduct']);
     Route::post('/create-order', [Controller::class, 'createOrder']);
     Route::post('/get-order', [Controller::class, 'getOrder']);
